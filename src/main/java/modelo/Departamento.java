@@ -54,4 +54,10 @@ public class Departamento {
     public void setArticulos(ColaArticulos articulos) {
         this.articulos = articulos;
     }
+    
+    @Override
+public String toString() {
+    return "Departamento [id=" + id + ", nombre=" + nombre + "]";
+}
+
 }
