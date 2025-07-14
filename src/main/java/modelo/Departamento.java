@@ -8,8 +8,8 @@ import estructura.ColaArticulos;
  * Contiene una cola de artículos relacionados.
  */
 public class Departamento {
-    private int id;                     // ID único del departamento
-    private String nombre;              // Nombre del departamento
+    private final int id;                     // ID único del departamento
+    private final String nombre;              // Nombre del departamento
     private ColaArticulos articulos;    // Cola de artículos del departamento
 
     /**

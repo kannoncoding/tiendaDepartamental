@@ -11,7 +11,7 @@ public class PilaDepartamentos {
     private static final int MAX_SIZE = 20;
 
     // Atributos
-    private Departamento[] pila;
+    private final Departamento[] pila;
     private int tope;
 
     // Constructor: inicializa la pila vacía
@@ -64,12 +64,11 @@ public class PilaDepartamentos {
 
     // Devuelve un arreglo con los departamentos actuales (de abajo hacia arriba)
     public Departamento[] getDepartamentos() {
-        Departamento[] departamentosActuales = new Departamento[size()];
-        for (int i = 0; i < size(); i++) {
-            departamentosActuales[i] = pila[i];
-        }
-        return departamentosActuales;
-    }
+    Departamento[] departamentosActuales = new Departamento[size()];
+    System.arraycopy(pila, 0, departamentosActuales, 0, size());
+    return departamentosActuales;
+}
+
 
     // Muestra todos los departamentos en la pila
     public void mostrarTodos() {

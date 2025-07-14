@@ -6,7 +6,7 @@ package modelo;
  */
 public class Articulo {
     // Atributos
-    private int id;
+    private final int id;
     private String nombre;
     private String categoria;
 
