@@ -34,7 +34,7 @@ public class TrasladoArticulosFrame extends JFrame {
         tablaOrigen = new JTable(modeloOrigen);
         JScrollPane scrollOrigen = new JScrollPane(tablaOrigen);
         scrollOrigen.setPreferredSize(new Dimension(240, 110));
-        
+
         // Tabla de departamentos destino
         modeloDestino = new DefaultTableModel(new Object[]{"ID", "Nombre"}, 0) {
             @Override
@@ -43,7 +43,7 @@ public class TrasladoArticulosFrame extends JFrame {
         tablaDestino = new JTable(modeloDestino);
         JScrollPane scrollDestino = new JScrollPane(tablaDestino);
         scrollDestino.setPreferredSize(new Dimension(240, 110));
-        
+
         // Tabla de artículos origen
         modeloArticulosOrigen = new DefaultTableModel(new Object[]{"ID", "Nombre", "Categoría"}, 0) {
             @Override
@@ -52,7 +52,7 @@ public class TrasladoArticulosFrame extends JFrame {
         tablaArticulosOrigen = new JTable(modeloArticulosOrigen);
         JScrollPane scrollArticulosOrigen = new JScrollPane(tablaArticulosOrigen);
         scrollArticulosOrigen.setPreferredSize(new Dimension(300, 110));
-        
+
         // Tabla de artículos destino
         modeloArticulosDestino = new DefaultTableModel(new Object[]{"ID", "Nombre", "Categoría"}, 0) {
             @Override
@@ -61,9 +61,9 @@ public class TrasladoArticulosFrame extends JFrame {
         tablaArticulosDestino = new JTable(modeloArticulosDestino);
         JScrollPane scrollArticulosDestino = new JScrollPane(tablaArticulosDestino);
         scrollArticulosDestino.setPreferredSize(new Dimension(300, 110));
-        
+
         // Botón de traslado
-        btnTrasladar = new JButton("Trasladar todos los artículos ➡️");
+        btnTrasladar = new JButton("Trasladar artículo seleccionado ➡️");
 
         // Paneles
         JPanel panelTablas = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -85,7 +85,7 @@ public class TrasladoArticulosFrame extends JFrame {
         tablaDestino.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) mostrarArticulosDestino();
         });
-        btnTrasladar.addActionListener(e -> trasladarArticulos());
+        btnTrasladar.addActionListener(e -> trasladarArticuloSeleccionado());
 
         // Inicializa tablas
         cargarTablasDepartamentos();
@@ -150,8 +150,7 @@ public class TrasladoArticulosFrame extends JFrame {
         }
     }
 
-    private void trasladarArticulos() {
-        // Validaciones
+    private void trasladarArticuloSeleccionado() {
         Departamento origen = buscarDepartamento(modeloOrigen, tablaOrigen);
         Departamento destino = buscarDepartamento(modeloDestino, tablaDestino);
 
@@ -167,23 +166,51 @@ public class TrasladoArticulosFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Debe seleccionar departamentos diferentes.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (origen.getArticulos() == null || origen.getArticulos().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El departamento origen no tiene artículos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        int disponiblesDestino = estructura.ColaArticulos.MAX_SIZE - destino.getArticulos().size();
-        if (origen.getArticulos().size() > disponiblesDestino) {
-            JOptionPane.showMessageDialog(this, "No hay espacio suficiente en el destino para todos los artículos.", "Error", JOptionPane.ERROR_MESSAGE);
+        int filaArticulo = tablaArticulosOrigen.getSelectedRow();
+        if (filaArticulo == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un artículo en el departamento de origen.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Trasladar todos los artículos de origen a destino
-        while (!origen.getArticulos().isEmpty()) {
-            Articulo art = origen.getArticulos().desencolar();
-            destino.getArticulos().encolar(art);
+        if (destino.getArticulos().isFull()) {
+            JOptionPane.showMessageDialog(this, "El departamento destino no tiene espacio para más artículos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        // Obtener el artículo seleccionado por su ID
+        int idArticulo = (int) modeloArticulosOrigen.getValueAt(filaArticulo, 0);
+        Articulo articuloATrasladar = null;
+        int idxEnCola = -1;
+
+        Articulo[] articulosOrigen = origen.getArticulos().getArticulos();
+        for (int i = 0; i < articulosOrigen.length; i++) {
+            if (articulosOrigen[i] != null && articulosOrigen[i].getId() == idArticulo) {
+                articuloATrasladar = articulosOrigen[i];
+                idxEnCola = i;
+                break;
+            }
+        }
+
+        if (articuloATrasladar == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró el artículo seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Eliminar el artículo del origen (no hay método directo, se debe desencolar en orden FIFO, así que reconstruimos la cola sin el artículo seleccionado)
+        estructura.ColaArticulos colaOriginal = origen.getArticulos();
+        estructura.ColaArticulos nuevaCola = new estructura.ColaArticulos();
+        for (Articulo art : colaOriginal.getArticulos()) {
+            if (art != null && art.getId() != idArticulo) {
+                nuevaCola.encolar(art);
+            }
+        }
+        origen.setArticulos(nuevaCola);
+
+        // Agregar el artículo al destino
+        destino.getArticulos().encolar(articuloATrasladar);
+
         mostrarArticulosOrigen();
         mostrarArticulosDestino();
-        JOptionPane.showMessageDialog(this, "Artículos trasladados exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Artículo trasladado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 }
