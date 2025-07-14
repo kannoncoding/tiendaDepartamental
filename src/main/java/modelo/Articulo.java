@@ -1,13 +1,47 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package modelo;
 
 /**
- *
- * @author Pegasus Onr
+ * Representa un artículo dentro de un departamento de la tienda.
+ * Cada artículo tiene un ID único, un nombre y una categoría.
  */
 public class Articulo {
-    
+    // Atributos
+    private int id;
+    private String nombre;
+    private String categoria;
+
+    // Constructor
+    public Articulo(int id, String nombre, String categoria) {
+        this.id = id;
+        this.nombre = nombre;
+        this.categoria = categoria;
+    }
+
+    // Métodos getter
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    // Métodos setter (si en algún punto se necesitan, aunque no se especifican, los puedes agregar)
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    // Para depuración y pruebas (opcional)
+    @Override
+    public String toString() {
+        return "Articulo [id=" + id + ", nombre=" + nombre + ", categoria=" + categoria + "]";
+    }
 }
