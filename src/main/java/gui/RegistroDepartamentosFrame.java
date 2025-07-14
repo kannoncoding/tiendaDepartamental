@@ -47,7 +47,7 @@ public class RegistroDepartamentosFrame extends JFrame {
 
         add(panelEntrada, BorderLayout.NORTH);
 
-        // Tabla y scroll
+        // TABLA (JTable) PARA DEPARTAMENTOS
         modeloTabla = new DefaultTableModel(new Object[]{"ID", "Nombre"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -58,41 +58,50 @@ public class RegistroDepartamentosFrame extends JFrame {
         JScrollPane scroll = new JScrollPane(tablaDepartamentos);
         add(scroll, BorderLayout.CENTER);
 
-        // Acción del botón
+        // Acción del botón para agregar departamento
         btnAgregar.addActionListener(e -> agregarDepartamento());
 
-        // Al abrir la ventana, cargar la tabla
+        // Al abrir la ventana, cargar la tabla con los departamentos actuales
         cargarTablaDepartamentos();
     }
 
-    // Método para agregar departamento
+    // Método para agregar un departamento con validación
     private void agregarDepartamento() {
-        String nombre = txtNombre.getText().trim();
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+    String nombre = txtNombre.getText().trim();
+    if (nombre.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El nombre no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Validar que NO exista otro departamento con el mismo nombre (ignorando mayúsculas/minúsculas)
+    Departamento[] existentes = util.DatosGlobales.pilaDepartamentos.getDepartamentos();
+    for (Departamento dep : existentes) {
+        if (dep != null && dep.getNombre().equalsIgnoreCase(nombre)) {
+            JOptionPane.showMessageDialog(this, "Ya existe un departamento con ese nombre.", "Error de validación", JOptionPane.WARNING_MESSAGE);
             return;
-        }
-
-        // Crear nuevo departamento
-        int nuevoId = GeneradorID.siguienteIdDepartamento();
-        Departamento dep = new Departamento(nuevoId, nombre);
-
-        // Intentar agregarlo a la pila global
-        boolean exito = util.DatosGlobales.pilaDepartamentos.push(dep);
-
-        if (exito) {
-            txtNombre.setText(""); // Limpiar campo
-            cargarTablaDepartamentos();
-        } else {
-            JOptionPane.showMessageDialog(this, "No se puede agregar más departamentos (pila llena).", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // Método para cargar la tabla con los departamentos de la pila
+    // Crear el departamento con ID autogenerado
+    int nuevoId = util.GeneradorID.siguienteIdDepartamento();
+    Departamento dep = new Departamento(nuevoId, nombre);
+
+    // Intentar agregarlo a la pila global
+    boolean exito = util.DatosGlobales.pilaDepartamentos.push(dep);
+
+    if (exito) {
+        txtNombre.setText(""); // Limpiar campo
+        cargarTablaDepartamentos(); // Refrescar tabla
+    } else {
+        JOptionPane.showMessageDialog(this, "No se puede agregar más departamentos (pila llena).", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    // Método para cargar/refrescar la tabla desde la pila
     private void cargarTablaDepartamentos() {
         modeloTabla.setRowCount(0); // Limpiar tabla
-        Departamento[] arreglo = util.DatosGlobales.pilaDepartamentos.getDepartamentos();
 
+        Departamento[] arreglo = util.DatosGlobales.pilaDepartamentos.getDepartamentos();
         for (Departamento dep : arreglo) {
             if (dep != null) {
                 modeloTabla.addRow(new Object[]{dep.getId(), dep.getNombre()});
