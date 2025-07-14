@@ -7,7 +7,7 @@ import modelo.Articulo;
  */
 public class ColaArticulos {
     // Constante para tamaño máximo de la cola
-    private static final int MAX_SIZE = 20;
+    public static final int MAX_SIZE = 20;
 
     // Atributos
     private Articulo[] cola;
