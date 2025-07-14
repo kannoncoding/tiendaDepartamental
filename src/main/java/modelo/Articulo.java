@@ -30,7 +30,7 @@ public class Articulo {
         return categoria;
     }
 
-    // Métodos setter (si en algún punto se necesitan, aunque no se especifican, los puedes agregar)
+    // Métodos setter 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -39,7 +39,7 @@ public class Articulo {
         this.categoria = categoria;
     }
 
-    // Para depuración y pruebas (opcional)
+    // test
     @Override
     public String toString() {
         return "Articulo [id=" + id + ", nombre=" + nombre + ", categoria=" + categoria + "]";
